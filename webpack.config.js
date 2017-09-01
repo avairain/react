@@ -1,12 +1,17 @@
 var path = require('path')
+var webpack = require('webpack')
 var htmlWebpackPlugin = require('html-webpack-plugin')
 var CleanWebpackPlugin = require('clean-webpack-plugin')
 // var webpack = require('webpack')
 module.exports = {
-    entry: './src/main.js',
+    entry: {
+        app: path.join(__dirname, './src/main.js'),
+        react: ['react'],  //第三方包的名字
+        reactDOM: ['react-dom']
+    },
     output: {
         path: path.join(__dirname, './dist'),
-        filename: 'bundle.js'
+        filename: '[name].js'
     },
     module: {
         rules: [
@@ -17,6 +22,18 @@ module.exports = {
         ]
     },
     plugins: [
+        new webpack.DefinePlugin({
+            'process.env.NODE_ENV': '"production"'  //进一步压缩JS 但效果不明显
+        }),
+        new webpack.optimize.UglifyJsPlugin({
+            // commpress:{
+            //     warnings:false  //移除警告
+            // }
+        }),
+        new webpack.optimize.CommonsChunkPlugin({
+            name: ['react', 'reactDOM'],
+            filename: '[name]/[name].js'//分离后第三方包的名字
+        }),
         new htmlWebpackPlugin({
             template: path.join(__dirname, "./src/index.html"),//模版
             filename: "index.html", //文件名
@@ -33,7 +50,7 @@ module.exports = {
     entry:{
         app:path.join(__dirname,'./src/main.js'),
         vendors:['']  //第三方包的名字
-    }
+    },
     pluguns:[
         new webpack.optimize.CommonsChunkPlugin({
             name:'vendors',
@@ -87,5 +104,15 @@ module.exports = {
             ]
         ]
     }
+    //分离多个第三方包到多个文件
+         entry:{
+            app:path.join(__dirname,'./src/main.js'),
+            react:['react'],  //第三方包的名字
+            reactDOM:['react-dom']
+        },
+        plugins:[new webpack.optimize.CommonsChunkPlugin({
+            name:['react','reactDOM'],
+            filename:'[name]/[name].js'//分离后第三方包的名字
+        })]
     */
 }
